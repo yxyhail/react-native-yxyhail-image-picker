@@ -10,7 +10,6 @@
 		D9B60A7A24F3C4910054AE15 /* RNImagePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B60A7924F3C4910054AE15 /* RNImagePicker.m */; };
 		D9B60A7B24F3C4910054AE15 /* RNImagePicker.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9B60A7824F3C4910054AE15 /* RNImagePicker.h */; };
 		D9B60A8524F3C5CB0054AE15 /* NSDictionary+SYSafeConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B60A8124F3C5CB0054AE15 /* NSDictionary+SYSafeConvert.m */; };
-		D9B60A8624F3C5CB0054AE15 /* RNImagePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B60A8324F3C5CB0054AE15 /* RNImagePicker.m */; };
 		D9B60AAC24F3C7620054AE15 /* TZImageCropManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B60A8A24F3C7620054AE15 /* TZImageCropManager.m */; };
 		D9B60AAD24F3C7620054AE15 /* TZAssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B60A8C24F3C7620054AE15 /* TZAssetCell.m */; };
 		D9B60AAE24F3C7620054AE15 /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B60A8D24F3C7620054AE15 /* TZVideoPlayerController.m */; };
@@ -48,8 +47,6 @@
 		D9B60A7824F3C4910054AE15 /* RNImagePicker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNImagePicker.h; sourceTree = "<group>"; };
 		D9B60A7924F3C4910054AE15 /* RNImagePicker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImagePicker.m; sourceTree = "<group>"; };
 		D9B60A8124F3C5CB0054AE15 /* NSDictionary+SYSafeConvert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+SYSafeConvert.m"; sourceTree = "<group>"; };
-		D9B60A8224F3C5CB0054AE15 /* RNImagePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNImagePicker.h; sourceTree = "<group>"; };
-		D9B60A8324F3C5CB0054AE15 /* RNImagePicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNImagePicker.m; sourceTree = "<group>"; };
 		D9B60A8424F3C5CB0054AE15 /* NSDictionary+SYSafeConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+SYSafeConvert.h"; sourceTree = "<group>"; };
 		D9B60A8824F3C7620054AE15 /* TZPhotoPreviewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZPhotoPreviewCell.h; sourceTree = "<group>"; };
 		D9B60A8924F3C7620054AE15 /* TZPhotoPickerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZPhotoPickerController.h; sourceTree = "<group>"; };
@@ -124,8 +121,6 @@
 				D9B60A7924F3C4910054AE15 /* RNImagePicker.m */,
 				D9B60A8424F3C5CB0054AE15 /* NSDictionary+SYSafeConvert.h */,
 				D9B60A8124F3C5CB0054AE15 /* NSDictionary+SYSafeConvert.m */,
-				D9B60A8224F3C5CB0054AE15 /* RNImagePicker.h */,
-				D9B60A8324F3C5CB0054AE15 /* RNImagePicker.m */,
 			);
 			path = RNImagePicker;
 			sourceTree = "<group>";
@@ -254,7 +249,6 @@
 				D9B60AB524F3C7620054AE15 /* TZPhotoPickerController.m in Sources */,
 				D9B60ABB24F3C7620054AE15 /* FLAnimatedImage.m in Sources */,
 				D9B60ABA24F3C7620054AE15 /* TZImageRequestOperation.m in Sources */,
-				D9B60A8624F3C5CB0054AE15 /* RNImagePicker.m in Sources */,
 				D9B60AAC24F3C7620054AE15 /* TZImageCropManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

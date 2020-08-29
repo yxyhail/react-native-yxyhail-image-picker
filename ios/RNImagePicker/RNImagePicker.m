@@ -216,7 +216,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
   BOOL showCropCircle  = [self.cameraOptions sy_boolForKey:@"showCropCircle"];
   //    BOOL isRecordSelected = [self.cameraOptions sy_boolForKey:@"isRecordSelected"];
   
-  BOOL isRecordSelected = YES;
+  BOOL isRecordSelected = NO;
   BOOL allowPickingOriginalPhoto = [self.cameraOptions sy_boolForKey:@"allowPickingOriginalPhoto"];
   BOOL allowPickingMultipleVideo = [self.cameraOptions sy_boolForKey:@"allowPickingMultipleVideo"];
   BOOL sortAscendingByModificationDate = [self.cameraOptions sy_boolForKey:@"sortAscendingByModificationDate"];
