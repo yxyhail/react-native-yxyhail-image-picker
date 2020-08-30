@@ -227,7 +227,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
   
   if((true)){
     NSLog(@"ImagePicker new code");
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 columnNumber:4 delegate:self pushPhotoPickerVc:YES];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:imageCount columnNumber:4 delegate:self pushPhotoPickerVc:YES];
     
     // imagePickerVc.barItemTextColor = [UIColor blackColor];
     // [imagePickerVc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor blackColor]}];
@@ -245,7 +245,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
     //    imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     //    imagePickerVc.allowTakeVideo = self.showTakeVideoBtnSwitch.isOn;   // 在内部显示拍视频按
     imagePickerVc.allowTakePicture = true;
-    imagePickerVc.allowTakeVideo = true;
+    imagePickerVc.allowTakeVideo = NO;
     imagePickerVc.videoMaximumDuration = 10; // 视频最大拍摄时间
     [imagePickerVc setUiImagePickerControllerSettingBlock:^(UIImagePickerController *imagePickerController) {
       imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
