@@ -96,6 +96,10 @@ export default {
         return RNImagePicker.asyncShowImagePicker(optionObj);
     },
 
+    showPreviewImage() {
+        RNImagePicker.previewImage(0)
+    },
+
     /**
      * 打开相机支持裁剪参数
      * @param options
