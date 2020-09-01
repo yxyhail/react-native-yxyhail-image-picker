@@ -115,4 +115,6 @@ export function removeAllPhoto(): void;
 
 export function openVideoPicker(options: Partial<ImagePickerOption>, callback: (err: null | string, photos: Array<SelectedPhoto>) => void): void;
 
-export function showPreviewImage(): void
+export function showPreviewImage(index: number): void
+
+export function sortList(order: Array): void

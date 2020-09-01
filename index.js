@@ -96,8 +96,12 @@ export default {
         return RNImagePicker.asyncShowImagePicker(optionObj);
     },
 
-    showPreviewImage() {
-        RNImagePicker.previewImage(0)
+    showPreviewImage(index) {
+        RNImagePicker.previewImage(index)
+    },
+
+    sortList(order) {
+        RNImagePicker.sortList(order)
     },
 
     /**

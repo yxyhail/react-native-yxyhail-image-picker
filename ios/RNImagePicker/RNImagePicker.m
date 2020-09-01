@@ -36,7 +36,8 @@
  */
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray *selectedAssetsCache;
-@property (nonatomic, strong) NSMutableArray *selectedPhotos;
+@property (nonatomic, strong) NSMutableArray *originSelectedAssets;
+@property (nonatomic, strong) NSArray *selectedPhotos;
 @end
 
 @implementation RNImagePicker
@@ -47,6 +48,7 @@
     _selectedAssets = [NSMutableArray array];
     _selectedAssetsCache = [NSMutableArray array];
     _selectedPhotos = [NSMutableArray array];
+    _originSelectedAssets = [NSMutableArray array];
   }
   return self;
 }
@@ -55,6 +57,7 @@
   _selectedAssets = nil;
   _selectedAssetsCache = nil;
   _selectedPhotos = nil;
+  _originSelectedAssets=nil;
 }
 
 RCT_EXPORT_MODULE()
@@ -87,9 +90,14 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options callback:(RCTResponseSender
   [self takePhoto];
 }
 
-RCT_REMAP_METHOD(previewImage,
-                 index:(NSInteger )index) {
-  [self previewImage:0];
+RCT_REMAP_METHOD(previewImage,index:(NSInteger )index) {
+  NSLog(@"previewImage:%ld",index);
+  [self pushPreviewImage:index];
+}
+
+RCT_REMAP_METHOD(sortList,order:(NSArray *) order){
+  NSLog(@"sortList:%@",order);
+  [self reSortList:order];
 }
 
 RCT_REMAP_METHOD(asyncOpenCamera,
@@ -112,11 +120,17 @@ RCT_EXPORT_METHOD(removePhotoAtIndex:(NSInteger)index) {
   if (self.selectedAssets && self.selectedAssets.count > index) {
     [self.selectedAssets removeObjectAtIndex:index];
   }
+  if(self.selectedAssetsCache && self.selectedAssetsCache.count>index){
+    [self.selectedAssetsCache removeObjectAtIndex:index];
+  }
 }
 
 RCT_EXPORT_METHOD(removeAllPhoto) {
   if (self.selectedAssets) {
     [self.selectedAssets removeAllObjects];
+  }
+  if(self.selectedAssetsCache){
+    [self.selectedAssetsCache removeAllObjects];
   }
 }
 
@@ -218,12 +232,38 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
   [[self topViewController] presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
-- (void)openImagePicker2 {
+- (void)reSortList: (NSArray *) order {
+  NSLog(@"before___reSortList:%@",_selectedAssetsCache);
+  
+  NSMutableArray* cache = [NSMutableArray array];
+//  [cache insertObject:@"1222" atIndex:1];
+  
+  NSLog(@"order.count:%@",order);
+  
+  for (int i=0; i<order.count; i++) {
+    NSInteger cacheIndex = [order[i] intValue];
+    NSLog(@"index:%ld",cacheIndex);
+    PHAsset *asset = _originSelectedAssets[cacheIndex];
+//    NSLog(@"oooooooooo asset.hash:%s",asset.hash);
+//    [_selectedAssetsCache removeObjectAtIndex:cacheIndex];
+//    NSLog(@"removeObjectAtIndex___reSortList:%@",_selectedAssetsCache);
+//    if(cacheIndex > i){
+//      [_selectedAssetsCache insertObject:asset atIndex:i];
+//      NSLog(@"insertObject___reSortList:%@",_selectedAssetsCache);
+//    }else{
+//      [_selectedAssetsCache insertObject:asset atIndex:i];
+//      NSLog(@"insertObject___reSortList:%@",_selectedAssetsCache);
+//    }
+    [cache addObject:asset];
+  }
+  [_selectedAssetsCache removeAllObjects];
+  _selectedAssetsCache = cache;
+  _selectedAssets = cache;
+  NSLog(@"reSortList:%@",_selectedAssetsCache);
 }
 
-
-- (void)previewImage: (NSInteger)index {
-  NSLog(@"*********************");
+- (void)pushPreviewImage: (NSInteger)index {
+  NSLog(@"*********************index:%ld",index);
   PHAsset *asset = _selectedAssetsCache[index];
   BOOL isVideo = NO;
   isVideo = asset.mediaType == PHAssetMediaTypeVideo;
@@ -242,7 +282,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
 //    [self presentViewController:vc animated:YES completion:nil];
   } else { // preview photos / 预览照片
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssetsCache selectedPhotos:nil index:0];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssetsCache selectedPhotos:nil index:index];
     //            imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
     imagePickerVc.maxImagesCount = 9;
     //            imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
@@ -278,7 +318,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
     BOOL showCropCircle  = [self.cameraOptions sy_boolForKey:@"showCropCircle"];
     //    BOOL isRecordSelected = [self.cameraOptions sy_boolForKey:@"isRecordSelected"];
     
-    BOOL isRecordSelected = NO;
+    BOOL isRecordSelected = YES;
     BOOL allowPickingOriginalPhoto = [self.cameraOptions sy_boolForKey:@"allowPickingOriginalPhoto"];
     BOOL allowPickingMultipleVideo = [self.cameraOptions sy_boolForKey:@"allowPickingMultipleVideo"];
     BOOL sortAscendingByModificationDate = [self.cameraOptions sy_boolForKey:@"sortAscendingByModificationDate"];
@@ -300,6 +340,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
 #pragma mark - 五类个性化设置，这些参数都可以不传，此时会走默认设置
       imagePickerVc.isSelectOriginalPhoto = NO;
       
+      NSLog(@"_selectedAssets:%@",_selectedAssets);
       //    if (self.maxCountTF.text.integerValue > 1) {
       // 1.设置目前已经选中的图片数组
       imagePickerVc.selectedAssets = _selectedAssets; // 目前已经选中的图片数组
@@ -443,12 +484,16 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
           self.selectedAssets = [NSMutableArray arrayWithArray:assets];
         }
         self.selectedAssetsCache = [NSMutableArray  arrayWithArray:assets];
+        self.originSelectedAssets = [NSMutableArray arrayWithArray:assets];
+        NSLog(@"++++++++++++++++++++++++++%@",assets);
         [weakPicker showProgressHUD];
         if (imageCount == 1 && isCrop) {
           [self invokeSuccessWithResult:@[[self handleCropImage:photos[0] phAsset:assets[0] quality:quality]]];
         } else {
           [infos enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             [self handleAssets:assets photos:photos quality:quality isSelectOriginalPhoto:isSelectOriginalPhoto completion:^(NSArray *selecteds) {
+              self.selectedPhotos = [NSMutableArray arrayWithArray:selecteds];
+              NSLog(@"++++++++++++++_selectedPhotos:%@",self.selectedPhotos);
               [self invokeSuccessWithResult:selecteds];
             } fail:^(NSError *error) {
               
