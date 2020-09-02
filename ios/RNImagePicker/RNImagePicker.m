@@ -116,13 +116,25 @@ RCT_EXPORT_METHOD(deleteCache) {
   [fileManager removeItemAtPath: [NSString stringWithFormat:@"%@SyanImageCaches", NSTemporaryDirectory()] error:nil];
 }
 
-RCT_EXPORT_METHOD(removePhotoAtIndex:(NSInteger)index) {
+RCT_EXPORT_METHOD(removePhotoAtIndex:(NSInteger)index originIndex:(NSInteger)originIndex) {
+  NSLog(@"remove:selectedAssets:%@",_selectedAssets);
   if (self.selectedAssets && self.selectedAssets.count > index) {
     [self.selectedAssets removeObjectAtIndex:index];
   }
+  NSLog(@"remove:selectedAssets after:%@",_selectedAssets);
+  
+  NSLog(@"remove:selectedAssetsCache:%@",_selectedAssetsCache);
+  NSLog(@"remove:index:%ld",index);
   if(self.selectedAssetsCache && self.selectedAssetsCache.count>index){
     [self.selectedAssetsCache removeObjectAtIndex:index];
   }
+  NSLog(@"remove:selectedAssetsCache after:%@",_selectedAssetsCache);
+  NSLog(@"remove:originSelectedAssets:%@",_originSelectedAssets);
+  NSLog(@"remove:originIndex:%ld",originIndex);
+  if(self.originSelectedAssets && self.originSelectedAssets.count>originIndex){
+    [self.originSelectedAssets removeObjectAtIndex:originIndex];
+  }
+  NSLog(@"remove:originSelectedAssets after:%@",_originSelectedAssets);
 }
 
 RCT_EXPORT_METHOD(removeAllPhoto) {
@@ -257,8 +269,8 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
     [cache addObject:asset];
   }
   [_selectedAssetsCache removeAllObjects];
-  _selectedAssetsCache = cache;
-  _selectedAssets = cache;
+  _selectedAssetsCache = [NSMutableArray arrayWithArray:cache];
+  _selectedAssets = [NSMutableArray arrayWithArray:cache];
   NSLog(@"reSortList:%@",_selectedAssetsCache);
 }
 
@@ -267,7 +279,7 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
   PHAsset *asset = _selectedAssetsCache[index];
   BOOL isVideo = NO;
   isVideo = asset.mediaType == PHAssetMediaTypeVideo;
-  //        if ([[asset valueForKey:@"filename"] containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
+//          if ([[asset valueForKey:@"filename"] containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
   if([[asset valueForKey:@"filename"] containsString:@"GIF"] && (false) && (true)){
     TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
     TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
@@ -282,6 +294,9 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
 //    [self presentViewController:vc animated:YES completion:nil];
   } else { // preview photos / 预览照片
+    NSLog(@"pushPreView assetName:%@",[asset valueForKey:@"filename"]);
+    NSLog(@"pushPreView cache:%@",_selectedAssetsCache);
+    NSLog(@"pushPreView index:%ld",index);
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssetsCache selectedPhotos:nil index:index];
     //            imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
     imagePickerVc.maxImagesCount = 9;

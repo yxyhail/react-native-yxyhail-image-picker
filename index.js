@@ -136,8 +136,8 @@ export default {
      * 移除选中的图片
      * @param {Number} index 要移除的图片下标
      */
-    removePhotoAtIndex(index) {
-        RNImagePicker.removePhotoAtIndex(index)
+    removePhotoAtIndex(index, originIndex) {
+        RNImagePicker.removePhotoAtIndex(index, originIndex)
     },
 
     /**
