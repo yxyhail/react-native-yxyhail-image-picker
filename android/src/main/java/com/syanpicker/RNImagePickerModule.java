@@ -3,11 +3,13 @@ package com.syanpicker;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.BaseActivityEventListener;
@@ -16,6 +18,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -25,6 +28,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 
@@ -35,7 +39,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +52,8 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
     private final ReactApplicationContext reactContext;
 
     private List<LocalMedia> selectList = new ArrayList<>();
+    private List<LocalMedia> selectListCache = new ArrayList<>();
+    private List<LocalMedia> selectListOrigin = new ArrayList<>();
 
     private Callback mPickerCallback; // 保存回调
 
@@ -94,6 +102,16 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
         this.mPickerCallback = null;
         this.mPickerPromise = promise;
         this.openCamera();
+    }
+
+    @ReactMethod
+    public void sortList(ReadableArray array){
+        this.reSortList(array.toArrayList());
+    }
+
+    @ReactMethod
+    public void previewImage(int index) {
+        this.pushPreviewImage(index);
     }
 
     /**
@@ -208,6 +226,55 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
                 .selectionMedia(selectList) // 当前已选中的图片 List
                 .isWeChatStyle(isWeChatStyle)
                 .forResult(PictureConfig.CHOOSE_REQUEST); //结果回调onActivityResult code
+    }
+
+    private void reSortList(List<Object> order){
+        List<LocalMedia> tmp = new ArrayList<>();
+        for (Object item: order) {
+            int cacheIndex = ((Double) item).intValue();
+            LocalMedia  cacheIndexMedia = selectListOrigin.get(cacheIndex);
+            tmp.add(cacheIndexMedia);
+        }
+        selectListCache = tmp;
+        selectList = tmp;
+    }
+
+    private void pushPreviewImage(int position){
+        List<LocalMedia> selectList = selectListCache;
+        if (selectList.size() > 0) {
+            LocalMedia media = selectList.get(position);
+            String mimeType = media.getMimeType();
+            int mediaType = PictureMimeType.getMimeType(mimeType);
+            switch (mediaType) {
+                case PictureConfig.TYPE_VIDEO:
+                    // 预览视频
+                    PictureSelector.create(getCurrentActivity())
+                            .themeStyle(R.style.picture_default_style)
+//                            .setPictureStyle(mPicx`tureParameterStyle)// 动态自定义相册主题
+                            .externalPictureVideo(TextUtils.isEmpty(media.getAndroidQToPath()) ? media.getPath() : media.getAndroidQToPath());
+                    break;
+                case PictureConfig.TYPE_AUDIO:
+                    // 预览音频
+                    PictureSelector.create(getCurrentActivity())
+                            .externalPictureAudio(PictureMimeType.isContent(media.getPath()) ? media.getAndroidQToPath() : media.getPath());
+                    break;
+                default:
+                    // 预览图片 可自定长按保存路径
+                    PictureWindowAnimationStyle animationStyle = new PictureWindowAnimationStyle();
+                    animationStyle.activityPreviewEnterAnimation = R.anim.picture_anim_up_in;
+                    animationStyle.activityPreviewExitAnimation = R.anim.picture_anim_down_out;
+                    PictureSelector.create(getCurrentActivity())
+                            .themeStyle(R.style.picture_default_style) // xml设置主题
+//                            .setPictureStyle(mPictureParameterStyle)// 动态自定义相册主题
+                            .setPictureWindowAnimationStyle(animationStyle)// 自定义页面启动动画
+                            .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)// 设置相册Activity方向，不设置默认使用系统
+                            .isNotPreviewDownload(true)// 预览图片长按是否可以下载
+                            //.bindCustomPlayVideoCallback(new MyVideoSelectedPlayCallback(getContext()))// 自定义播放回调控制，用户可以使用自己的视频播放界面
+                            .imageEngine(GlideEngine.createGlideEngine())// 外部传入图片加载引擎，必传项
+                            .openExternalPreview(position, selectList);
+                    break;
+            }
+        }
     }
 
     /**
@@ -365,6 +432,8 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
 
     private void onGetResult(Intent data) {
         List<LocalMedia> tmpSelectList = PictureSelector.obtainMultipleResult(data);
+        selectListCache = tmpSelectList;
+        selectListOrigin = tmpSelectList;
         boolean isRecordSelected = cameraOptions.getBoolean("isRecordSelected");
         if (!tmpSelectList.isEmpty() && isRecordSelected) {
             selectList = tmpSelectList;
@@ -442,6 +511,7 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
 
     /**
      * 获取视频封面图片
+     *
      * @param videoPath 视频地址
      */
     private String getVideoCover(String videoPath) {
