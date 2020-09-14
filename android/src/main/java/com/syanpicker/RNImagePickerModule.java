@@ -105,7 +105,7 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sortList(ReadableArray array){
+    public void sortList(ReadableArray array) {
         this.reSortList(array.toArrayList());
     }
 
@@ -129,9 +129,16 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
      * index 要移除的图片下标
      */
     @ReactMethod
-    public void removePhotoAtIndex(int index) {
+    public void removePhotoAtIndex(int index, int originalIndex) {
         if (selectList != null && selectList.size() > index) {
             selectList.remove(index);
+        }
+        if (selectListCache != null && selectListCache.size() > index) {
+            selectListCache.remove(index);
+        }
+
+        if (selectListOrigin != null && selectListOrigin.size() > originalIndex) {
+            selectListOrigin.remove(originalIndex);
         }
     }
 
@@ -228,18 +235,18 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
                 .forResult(PictureConfig.CHOOSE_REQUEST); //结果回调onActivityResult code
     }
 
-    private void reSortList(List<Object> order){
+    private void reSortList(List<Object> order) {
         List<LocalMedia> tmp = new ArrayList<>();
-        for (Object item: order) {
+        for (Object item : order) {
             int cacheIndex = ((Double) item).intValue();
-            LocalMedia  cacheIndexMedia = selectListOrigin.get(cacheIndex);
+            LocalMedia cacheIndexMedia = selectListOrigin.get(cacheIndex);
             tmp.add(cacheIndexMedia);
         }
         selectListCache = tmp;
         selectList = tmp;
     }
 
-    private void pushPreviewImage(int position){
+    private void pushPreviewImage(int position) {
         List<LocalMedia> selectList = selectListCache;
         if (selectList.size() > 0) {
             LocalMedia media = selectList.get(position);
