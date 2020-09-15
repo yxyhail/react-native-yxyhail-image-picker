@@ -148,8 +148,16 @@ public class RNImagePickerModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void removeAllPhoto() {
         if (selectList != null) {
-            //selectList.clear();
-            selectList = null;
+            selectList.clear();
+//            selectList = null;
+        }
+        if (selectListCache != null) {
+//            selectListCache = null;
+            selectListCache.clear();
+        }
+        if (selectListOrigin != null) {
+            selectListOrigin.clear();
+//            selectListOrigin = null;
         }
     }
 
