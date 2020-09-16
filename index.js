@@ -104,6 +104,10 @@ export default {
         RNImagePicker.sortList(order)
     },
 
+    uploadFiles(url = '', files = [], params = {}, headers = {}) {
+        return RNImagePicker.uploadFiles(url, files, params, headers)
+    },
+
     /**
      * 打开相机支持裁剪参数
      * @param options

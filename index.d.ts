@@ -118,3 +118,4 @@ export function openVideoPicker(options: Partial<ImagePickerOption>, callback: (
 export function showPreviewImage(index: number): void
 
 export function sortList(order: Array): void
+export function uploadFiles(url: string, files: Array<object>, params: object, headers: object): Promise<Object>
