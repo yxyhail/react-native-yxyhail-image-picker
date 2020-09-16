@@ -377,33 +377,33 @@ RCT_EXPORT_METHOD(openVideoPicker:(NSDictionary *)options callback:(RCTResponseS
   NSString *end = [NSString stringWithFormat:@"\r\n--%@--",Kboundary];
   [requestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
   
-  request.HTTPBody = requestData.copy;
-  
-  [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
-    if(connectionError){
-      if(self.rejectBlock){
-        self.rejectBlock(@"-1", @"上传失败reject", connectionError);
-        self.rejectBlock = nil;
-      }
-      return;
-    }
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
-    if(httpResponse.statusCode == 200 || httpResponse.statusCode == 304){
-      NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-      //      NSLog(@" 上传成功：%@",dict);
-      if(self.resolveBlock){
-        self.resolveBlock(dict);
-        self.resolveBlock = nil;
-      }
-    }else{
-      //      NSLog(@"上传失败 内部错误");
-      if(self.rejectBlock){
-        self.rejectBlock(@"-1", @"上传失败reject", nil);
-        self.rejectBlock = nil;
-      }
-    }
+  NSURLSession *session = [NSURLSession sharedSession];
+  NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:requestData.copy completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if(error){
+          if(self.rejectBlock){
+            self.rejectBlock(@"-1", @"上传失败reject", error);
+            self.rejectBlock = nil;
+          }
+          return;
+        }
+
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+        if(httpResponse.statusCode == 200 || httpResponse.statusCode == 304){
+          NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+          //      NSLog(@" 上传成功：%@",dict);
+          if(self.resolveBlock){
+            self.resolveBlock(dict);
+            self.resolveBlock = nil;
+          }
+        }else{
+          //      NSLog(@"上传失败 内部错误");
+          if(self.rejectBlock){
+            self.rejectBlock(@"-1", @"上传失败reject", nil);
+            self.rejectBlock = nil;
+          }
+        }
   }];
+  [uploadTask resume];
 }
 
 
